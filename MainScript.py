@@ -18,7 +18,14 @@ def GetLgHeNet(LstIP,browser,DctResult):
             browser.find_by_id('raw').click()
             browser.find_by_value('Probe').click()
             StrResult = browser.find_by_id('lg_return').text
-        except Exception as error : print('GetLgHeNet : %s\n%s'%(Ip,error))
+        except Exception as error : 
+            print('GetLgHeNet : %s\n%s'%(Ip,error))
+            DateTimeCurrent = str(datetime.datetime.now().strftime('%d:%m:%Y %H:%M:%S'))
+            receiver_email = 'thinhlv@vng.com.vn'
+            subject = '[Ping monitor tool] Send error message'
+            message = '[Function : Main][Time collect: %s][Error : %s]'%(DateTimeCurrent,error)
+            SendEmailText(receiver_email,message,subject)
+            time.sleep(180)
         
         if Ip in DctResult: DctResult[Ip]['LgHeNet'] = StrResult
         else: DctResult[Ip] = {'LgHeNet':StrResult}
@@ -40,7 +47,14 @@ def GetCenturyLink(LstIP,browser,DctResult):
             browser.find_by_xpath('//div[@class="col-7 col-sm-7 col-md-6 col-lg-6 col-xl-6"]/select').last.select('5')
             browser.find_by_xpath('//button[@class="btn  btn-primary btn-sm"]').first.click()
             StrResult = browser.find_by_xpath('//div[@class="container-fluid"]/div[3]/div[2]').text
-        except Exception as error : print('GetCenturyLink : %s\n%s'%(Ip,error))
+        except Exception as error : 
+            print('GetCenturyLink : %s\n%s'%(Ip,error))
+            DateTimeCurrent = str(datetime.datetime.now().strftime('%d:%m:%Y %H:%M:%S'))
+            receiver_email = 'thinhlv@vng.com.vn'
+            subject = '[Ping monitor tool] Send error message'
+            message = '[Function : Main][Time collect: %s][Error : %s]'%(DateTimeCurrent,error)
+            SendEmailText(receiver_email,message,subject)
+            time.sleep(180)
 
         if Ip in DctResult: DctResult[Ip]['CenturyLink'] = StrResult
         else: DctResult[Ip] = {'CenturyLink':StrResult}
@@ -66,7 +80,14 @@ def GetPCCW(LstIP,browser,DctResult):
                 if browser.is_text_present('Query Complete'): break
                 else: time.sleep(3)
             StrResult = browser.find_by_xpath('//div[@id="rsDiv"]').text
-        except Exception as error : print('GetPCCW : %s\n%s'%(Ip,error))
+        except Exception as error : 
+            print('GetPCCW : %s\n%s'%(Ip,error))
+            DateTimeCurrent = str(datetime.datetime.now().strftime('%d:%m:%Y %H:%M:%S'))
+            receiver_email = 'thinhlv@vng.com.vn'
+            subject = '[Ping monitor tool] Send error message'
+            message = '[Function : Main][Time collect: %s][Error : %s]'%(DateTimeCurrent,error)
+            SendEmailText(receiver_email,message,subject)
+            time.sleep(180)
 
         if Ip in DctResult: DctResult[Ip]['PCCW'] = StrResult
         else: DctResult[Ip] = {'PCCW':StrResult}
