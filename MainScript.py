@@ -206,7 +206,7 @@ if __name__ == "__main__":
                 message = '<!DOCTYPE html><html><body><p>Time collect : %s<br><br>PING MONITOR TOOL</p></body></html>'%DateTimeCurrent
                 receiver_email = 'huynq8@vng.com.vn;thinhlv@vng.com.vn'
                 subject = '[Ping monitor tool] Send file report'
-                SendEmailAttachFile(receiver_email,subject,message,NameFileResult)
+                SendEmailAttachFile(receiver_email,subject,message,'Report_%s.xlsx'%StrTimeTmp)
             except Exception as error : 
                 print('Main : %s'%error)
                 receiver_email = 'thinhlv@vng.com.vn'
