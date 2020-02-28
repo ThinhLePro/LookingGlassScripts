@@ -71,25 +71,15 @@ def GetPCCW(LstIP,browser,DctResult):
         if Ip in DctResult: DctResult[Ip]['PCCW'] = StrResult
         else: DctResult[Ip] = {'PCCW':StrResult}
 
-def SendEmail(NameFileResult,StrTime):
+def SendEmailAttachFile(receiver_email,subject,message,NameFileResult):
     dir_path = './/DataInfo'
     files = [NameFileResult]
     sender_email = 'tool.acl.thinhlv@gmail.com'
-    receiver_email = 'huynq8@vng.com.vn;thinhlv@vng.com.vn'
     password = 'Myt00l@cl'
     msg = MIMEMultipart()
     msg['To'] = receiver_email
     msg['From'] = sender_email
-    msg['Subject'] = '[Ping monitor tool] Send file ping report'
-    message = '''
-            <!DOCTYPE html>
-            <html>
-            <body>
-            <p>Time collect : %s<br><br>
-            PING MONITOR TOOL</p>
-            </body>
-            </html>
-            '''%StrTime
+    msg['Subject'] = subject
     body = MIMEText(message, 'html', 'utf-8')  
     msg.attach(body)  # add message body (text or html)
 
@@ -105,6 +95,29 @@ def SendEmail(NameFileResult,StrTime):
         server.login(sender_email, password)
         server.sendmail(
             sender_email, receiver_email, msg.as_string()
+    )
+
+def SendEmailText (receiver_email,messages, subject):
+    sender_email = "tool.acl.thinhlv@gmail.com"
+    password = 'Myt00l@cl'
+    message = MIMEMultipart("alternative")
+    message["Subject"] = subject
+    message["From"] = sender_email
+    message["To"] = receiver_email
+
+    # Turn these into plain/html MIMEText objects
+    part1 = MIMEText(messages, "plain")
+
+    # Add HTML/plain-text parts to MIMEMultipart message
+    # The email client will try to render the last part first
+    message.attach(part1)
+
+    # Create secure connection with server and send email
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+        server.login(sender_email, password)
+        server.sendmail(
+            sender_email, receiver_email, message.as_string()
     )
 
 if __name__ == "__main__":
@@ -169,8 +182,16 @@ if __name__ == "__main__":
 
                 Wb.save(NameFileResult)
                 LstTimeCheck.append(StrTimeCheck)
-                SendEmail(NameFileResult,DateTimeCurrent)
-            except Exception as error : print('Main : %s'%error)
+                message = '<!DOCTYPE html><html><body><p>Time collect : %s<br><br>PING MONITOR TOOL</p></body></html>'%DateTimeCurrent
+                receiver_email = 'huynq8@vng.com.vn;thinhlv@vng.com.vn'
+                subject = '[Ping monitor tool] Send file report'
+                SendEmailAttachFile(receiver_email,subject,message,NameFileResult)
+            except Exception as error : 
+                print('Main : %s'%error)
+                receiver_email = 'thinhlv@vng.com.vn'
+                subject = '[Ping monitor tool] Send error message'
+                message = '[Function : Main][Time collect: %s][Error : %s]'%(DateTimeCurrent,error)
+                SendEmailText(receiver_email,message,subject)
         else:
             print('List time collect mỗi ngày : %s'%(','.join(LstTmp)))
             print('Time current : %s'%DateTimeCurrent)
