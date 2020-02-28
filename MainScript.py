@@ -1,6 +1,9 @@
 from splinter import Browser
 from selenium import webdriver
-import openpyxl,time,threading,datetime
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+import openpyxl,time,threading,datetime,os,ssl,smtplib
 
 def GetLgHeNet(LstIP,browser,DctResult):
     for Ip in LstIP:
@@ -68,6 +71,41 @@ def GetPCCW(LstIP,browser,DctResult):
         if Ip in DctResult: DctResult[Ip]['PCCW'] = StrResult
         else: DctResult[Ip] = {'PCCW':StrResult}
 
+def SendEmail(NameFileResult,StrTime):
+    dir_path = './/DataInfo'
+    files = [NameFileResult]
+    sender_email = 'tool.acl.thinhlv@gmail.com'
+    receiver_email = 'huynq8@vng.com.vn;thinhlv@vng.com.vn'
+    password = 'Myt00l@cl'
+    msg = MIMEMultipart()
+    msg['To'] = receiver_email
+    msg['From'] = sender_email
+    msg['Subject'] = '[Ping monitor tool] Send file ping report'
+    message = '''
+            <!DOCTYPE html>
+            <html>
+            <body>
+            <p>Time collect : %s<br><br>
+            PING MONITOR TOOL</p>
+            </body>
+            </html>
+            '''%StrTime
+    body = MIMEText(message, 'html', 'utf-8')  
+    msg.attach(body)  # add message body (text or html)
+
+    for f in files:  # add files to the message
+        file_path = os.path.join(dir_path, f)
+        attachment = MIMEApplication(open(file_path, "rb").read(), _subtype="txt")
+        attachment.add_header('Content-Disposition','attachment', filename=f)
+        msg.attach(attachment)
+
+    # Create secure connection with server and send email
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+        server.login(sender_email, password)
+        server.sendmail(
+            sender_email, receiver_email, msg.as_string()
+    )
 
 if __name__ == "__main__":
     while True:
@@ -85,7 +123,7 @@ if __name__ == "__main__":
     while True: 
         TimeCurrent = datetime.datetime.now()
         DateTimeCurrent = str(datetime.datetime.now().strftime('%d:%m:%Y %H:%M:%S'))
-        StrTimeCheck = '%s_%s'%(str(TimeCurrent.day),str(TimeCurrent.hour))
+        StrTimeCheck = '%s_%s_%s_%s'%(str(TimeCurrent.year),str(TimeCurrent.month),str(TimeCurrent.day),str(TimeCurrent.hour))
         if TimeCurrent.hour in LstTime and StrTimeCheck not in LstTimeCheck:
             try:
                 StrTimeTmp = str(datetime.datetime.now().strftime('%d_%m_%Y_%H_%M_%S'))
@@ -131,8 +169,10 @@ if __name__ == "__main__":
 
                 Wb.save(NameFileResult)
                 LstTimeCheck.append(StrTimeCheck)
+                SendEmail(NameFileResult,DateTimeCurrent)
             except Exception as error : print('Main : %s'%error)
         else:
             print('List time collect mỗi ngày : %s'%(','.join(LstTmp)))
             print('Time current : %s'%DateTimeCurrent)
             time.sleep(60)
+'''
