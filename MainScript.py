@@ -135,4 +135,4 @@ if __name__ == "__main__":
         else:
             print('List time collect mỗi ngày : %s'%(','.join(LstTmp)))
             print('Time current : %s'%DateTimeCurrent)
-            time.sleep(900)
+            time.sleep(60)
