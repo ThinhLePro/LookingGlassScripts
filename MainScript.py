@@ -10,13 +10,27 @@ def GetLgHeNet(LstIP,browser,DctResult):
         StrResult  = 'None'
         print('GetLgHeNet : %s .Inprogress : %d/%d'%(Ip,LstIP.index(Ip)+1,len(LstIP)))
         try:
-            time.sleep(1)
+            time.sleep(5)
             browser.visit('https://lg.he.net/')
-            time.sleep(1)
+            time.sleep(5)
             browser.click_link_by_id('command_ping')
             browser.find_by_id('ip').fill(Ip.strip())
             browser.find_by_id('raw').click()
             browser.find_by_value('Probe').click()
+            time.sleep(5)
+            while True:
+                if browser.is_text_present('You have too many active queries'): 
+                    print('GetLgHeNet : %s\n%s'%(Ip,error))
+                    DateTimeCurrent = str(datetime.datetime.now().strftime('%d:%m:%Y %H:%M:%S'))
+                    receiver_email = 'thinhlv@vng.com.vn'
+                    subject = '[Ping monitor tool] Send error message'
+                    message = '[Function : Main][Time collect: %s][Error : You have too many active queries]'%(DateTimeCurrent)
+                    SendEmailText(receiver_email,message,subject)
+                    time.sleep(60)
+                    browser.find_by_value('Probe').click()
+                    time.sleep(5)
+                else: 
+                    break
             StrResult = browser.find_by_id('lg_return').text
         except Exception as error : 
             print('GetLgHeNet : %s\n%s'%(Ip,error))
@@ -38,14 +52,15 @@ def GetCenturyLink(LstIP,browser,DctResult):
         StrResult  = 'None'
         print('GetCenturyLink : %s .Inprogress : %d/%d'%(Ip,LstIP.index(Ip)+1,len(LstIP)))
         try:
-            time.sleep(1)
+            time.sleep(5)
             browser.visit('https://lookingglass.centurylink.com/')
-            time.sleep(1)
+            time.sleep(5)
             browser.find_by_value('Singapore').click()
             browser.find_by_xpath('//div[@class="col-12 col-sm-9 col-md-6 col-lg-6 col-xl-6"]/input').first.fill(Ip)
             browser.find_by_xpath('//div[@class="col-7 col-sm-7 col-md-6 col-lg-6 col-xl-6"]/input').first.fill('32')
             browser.find_by_xpath('//div[@class="col-7 col-sm-7 col-md-6 col-lg-6 col-xl-6"]/select').last.select('5')
             browser.find_by_xpath('//button[@class="btn  btn-primary btn-sm"]').first.click()
+            time.sleep(5)
             StrResult = browser.find_by_xpath('//div[@class="container-fluid"]/div[3]/div[2]').text
         except Exception as error : 
             print('GetCenturyLink : %s\n%s'%(Ip,error))
@@ -64,9 +79,9 @@ def GetPCCW(LstIP,browser,DctResult):
         StrResult  = 'None'
         print('GetPCCW : %s .Inprogress : %d/%d'%(Ip,LstIP.index(Ip)+1,len(LstIP)))
         try:
-            time.sleep(1)
+            time.sleep(5)
             browser.visit('https://lookingglass.pccwglobal.com/')
-            time.sleep(1)
+            time.sleep(5)
             browser.find_by_xpath('//div[@id="srcContainer"]/select/option[@value="sin01"]').click()
             browser.find_by_xpath('//div[@id="rProtocolContainer"]/select/option[@value="ipv4"]').click()
             browser.find_by_xpath('//div[@id="rProfileContainer"]/select/option[@value="standard"]').click()
@@ -78,7 +93,14 @@ def GetPCCW(LstIP,browser,DctResult):
             browser.find_by_id('submit').first.click()
             while True:
                 if browser.is_text_present('Query Complete'): break
-                else: time.sleep(1)
+                elif browser.is_text_present('Request has timeout'): 
+                    DateTimeCurrent = str(datetime.datetime.now().strftime('%d:%m:%Y %H:%M:%S'))
+                    receiver_email = 'thinhlv@vng.com.vn'
+                    subject = '[Ping monitor tool] Send error message'
+                    message = '[Function : Main][Time collect: %s][Error : Request has timeout]'%(DateTimeCurrent)
+                    SendEmailText(receiver_email,message,subject)
+                    browser.find_by_id('submit').first.click()
+                else: time.sleep(5)
             StrResult = browser.find_by_xpath('//div[@id="rsDiv"]').text
         except Exception as error : 
             print('GetPCCW : %s\n%s'%(Ip,error))
@@ -142,9 +164,10 @@ def SendEmailText (receiver_email,messages, subject):
     )
 
 if __name__ == "__main__":
+  
     while True:
         Stop = True
-        StrTime = input('Nhập vào list các giờ cần chạy, mỗi giờ cách nhau dấu phẩy or dấu cách : ').strip()
+        StrTime = input('Nhập vào list phút, mỗi phút cách nhau dấu phẩy or dấu cách : ').strip()
         if ',' in StrTime: LstTmp = StrTime.split(',')
         else: LstTmp = StrTime.split(' ')
         for Time in LstTmp: 
@@ -158,7 +181,7 @@ if __name__ == "__main__":
         TimeCurrent = datetime.datetime.now()
         DateTimeCurrent = str(datetime.datetime.now().strftime('%d:%m:%Y %H:%M:%S'))
         StrTimeCheck = '%s_%s_%s_%s'%(str(TimeCurrent.year),str(TimeCurrent.month),str(TimeCurrent.day),str(TimeCurrent.hour))
-        if TimeCurrent.hour in LstTime and StrTimeCheck not in LstTimeCheck:
+        if TimeCurrent.minute in LstTime and StrTimeCheck not in LstTimeCheck:
             try:
                 StrTimeTmp = str(datetime.datetime.now().strftime('%d_%m_%Y_%H_%M_%S'))
                 NameFileResult = './/DataInfo/Report_%s.xlsx'%StrTimeTmp
@@ -168,17 +191,10 @@ if __name__ == "__main__":
                 LstIP,threads,DctResult = [],[],{}
 
                 for IndexRow in range(2,Ws.max_row+1): LstIP.append(Ws.cell(row = IndexRow,column = 1).value)
-                browser = Browser('chrome')
-                GetLgHeNet(LstIP,browser,DctResult)
-                GetCenturyLink(LstIP,browser,DctResult)
-                GetPCCW(LstIP,browser,DctResult)
-                browser.quit()
 
-                '''
                 browser1 = Browser('chrome')
                 browser2 = Browser('chrome')
                 browser3 = Browser('chrome')
-
                 x = threading.Thread(target=GetLgHeNet, args=(LstIP,browser1,DctResult))
                 threads.append(x)
                 x.start()
@@ -190,11 +206,10 @@ if __name__ == "__main__":
                 x.start()
                 for index, thread in enumerate(threads):
                     thread.join()
-
                 browser1.quit()
                 browser2.quit()
                 browser3.quit()
-                '''
+
                 for IndexRow in range(2,Ws.max_row+1): 
                     Ip = Ws.cell(row = IndexRow,column = 1).value
                     LgHeNet, CenturyLink, PCCWglobal = ' ', ' ', ' '
