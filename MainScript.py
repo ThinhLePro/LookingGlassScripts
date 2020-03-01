@@ -170,8 +170,8 @@ if __name__ == "__main__":
                 for IndexRow in range(2,Ws.max_row+1): LstIP.append(Ws.cell(row = IndexRow,column = 1).value)
                 browser = Browser('chrome')
                 GetLgHeNet(LstIP,browser,DctResult)
-                GetLgHeNet(LstIP,browser,DctResult)
-                GetLgHeNet(LstIP,browser,DctResult)
+                GetCenturyLink(LstIP,browser,DctResult)
+                GetPCCW(LstIP,browser,DctResult)
                 browser.quit()
 
                 '''
