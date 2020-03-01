@@ -20,7 +20,6 @@ def GetLgHeNet(LstIP,browser,DctResult):
             time.sleep(5)
             while True:
                 if browser.is_text_present('You have too many active queries'): 
-                    print('GetLgHeNet : %s\n%s'%(Ip,error))
                     DateTimeCurrent = str(datetime.datetime.now().strftime('%d:%m:%Y %H:%M:%S'))
                     receiver_email = 'thinhlv@vng.com.vn'
                     subject = '[Ping monitor tool] Send error message'
@@ -93,7 +92,7 @@ def GetPCCW(LstIP,browser,DctResult):
             browser.find_by_id('submit').first.click()
             while True:
                 if browser.is_text_present('Query Complete'): break
-                elif browser.is_text_present('Request has timeout'): 
+                elif browser.is_text_present('Request has timed out'): 
                     DateTimeCurrent = str(datetime.datetime.now().strftime('%d:%m:%Y %H:%M:%S'))
                     receiver_email = 'thinhlv@vng.com.vn'
                     subject = '[Ping monitor tool] Send error message'
@@ -239,4 +238,4 @@ if __name__ == "__main__":
         else:
             print('List time collect mỗi ngày : %s'%(','.join(LstTmp)))
             print('Time current : %s'%DateTimeCurrent)
-            time.sleep(60)
+            time.sleep(30)
