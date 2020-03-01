@@ -10,9 +10,9 @@ def GetLgHeNet(LstIP,browser,DctResult):
         StrResult  = 'None'
         print('GetLgHeNet : %s .Inprogress : %d/%d'%(Ip,LstIP.index(Ip)+1,len(LstIP)))
         try:
-            time.sleep(3)
+            time.sleep(1)
             browser.visit('https://lg.he.net/')
-            time.sleep(3)
+            time.sleep(1)
             browser.click_link_by_id('command_ping')
             browser.find_by_id('ip').fill(Ip.strip())
             browser.find_by_id('raw').click()
@@ -25,7 +25,7 @@ def GetLgHeNet(LstIP,browser,DctResult):
             subject = '[Ping monitor tool] Send error message'
             message = '[Function : Main][Time collect: %s][Error : %s]'%(DateTimeCurrent,error)
             SendEmailText(receiver_email,message,subject)
-            time.sleep(180)
+            time.sleep(60)
         
         if Ip in DctResult: DctResult[Ip]['LgHeNet'] = StrResult
         else: DctResult[Ip] = {'LgHeNet':StrResult}
@@ -38,9 +38,9 @@ def GetCenturyLink(LstIP,browser,DctResult):
         StrResult  = 'None'
         print('GetCenturyLink : %s .Inprogress : %d/%d'%(Ip,LstIP.index(Ip)+1,len(LstIP)))
         try:
-            time.sleep(3)
+            time.sleep(1)
             browser.visit('https://lookingglass.centurylink.com/')
-            time.sleep(3)
+            time.sleep(1)
             browser.find_by_value('Singapore').click()
             browser.find_by_xpath('//div[@class="col-12 col-sm-9 col-md-6 col-lg-6 col-xl-6"]/input').first.fill(Ip)
             browser.find_by_xpath('//div[@class="col-7 col-sm-7 col-md-6 col-lg-6 col-xl-6"]/input').first.fill('32')
@@ -54,7 +54,7 @@ def GetCenturyLink(LstIP,browser,DctResult):
             subject = '[Ping monitor tool] Send error message'
             message = '[Function : Main][Time collect: %s][Error : %s]'%(DateTimeCurrent,error)
             SendEmailText(receiver_email,message,subject)
-            time.sleep(180)
+            time.sleep(60)
 
         if Ip in DctResult: DctResult[Ip]['CenturyLink'] = StrResult
         else: DctResult[Ip] = {'CenturyLink':StrResult}
@@ -64,9 +64,9 @@ def GetPCCW(LstIP,browser,DctResult):
         StrResult  = 'None'
         print('GetPCCW : %s .Inprogress : %d/%d'%(Ip,LstIP.index(Ip)+1,len(LstIP)))
         try:
-            time.sleep(3)
+            time.sleep(1)
             browser.visit('https://lookingglass.pccwglobal.com/')
-            time.sleep(3)
+            time.sleep(1)
             browser.find_by_xpath('//div[@id="srcContainer"]/select/option[@value="sin01"]').click()
             browser.find_by_xpath('//div[@id="rProtocolContainer"]/select/option[@value="ipv4"]').click()
             browser.find_by_xpath('//div[@id="rProfileContainer"]/select/option[@value="standard"]').click()
@@ -78,7 +78,7 @@ def GetPCCW(LstIP,browser,DctResult):
             browser.find_by_id('submit').first.click()
             while True:
                 if browser.is_text_present('Query Complete'): break
-                else: time.sleep(3)
+                else: time.sleep(1)
             StrResult = browser.find_by_xpath('//div[@id="rsDiv"]').text
         except Exception as error : 
             print('GetPCCW : %s\n%s'%(Ip,error))
@@ -87,7 +87,7 @@ def GetPCCW(LstIP,browser,DctResult):
             subject = '[Ping monitor tool] Send error message'
             message = '[Function : Main][Time collect: %s][Error : %s]'%(DateTimeCurrent,error)
             SendEmailText(receiver_email,message,subject)
-            time.sleep(180)
+            time.sleep(60)
 
         if Ip in DctResult: DctResult[Ip]['PCCW'] = StrResult
         else: DctResult[Ip] = {'PCCW':StrResult}
@@ -166,11 +166,19 @@ if __name__ == "__main__":
                 SheetName = Wb.sheetnames
                 Ws = Wb[SheetName[0]]
                 LstIP,threads,DctResult = [],[],{}
+
+                for IndexRow in range(2,Ws.max_row+1): LstIP.append(Ws.cell(row = IndexRow,column = 1).value)
+                browser = Browser('chrome')
+                GetLgHeNet(LstIP,browser,DctResult)
+                GetLgHeNet(LstIP,browser,DctResult)
+                GetLgHeNet(LstIP,browser,DctResult)
+                browser.quit()
+
+                '''
                 browser1 = Browser('chrome')
                 browser2 = Browser('chrome')
                 browser3 = Browser('chrome')
 
-                for IndexRow in range(2,Ws.max_row+1): LstIP.append(Ws.cell(row = IndexRow,column = 1).value)
                 x = threading.Thread(target=GetLgHeNet, args=(LstIP,browser1,DctResult))
                 threads.append(x)
                 x.start()
@@ -186,7 +194,7 @@ if __name__ == "__main__":
                 browser1.quit()
                 browser2.quit()
                 browser3.quit()
-
+                '''
                 for IndexRow in range(2,Ws.max_row+1): 
                     Ip = Ws.cell(row = IndexRow,column = 1).value
                     LgHeNet, CenturyLink, PCCWglobal = ' ', ' ', ' '
