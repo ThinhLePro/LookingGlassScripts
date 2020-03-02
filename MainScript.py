@@ -4,7 +4,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 import openpyxl,time,threading,datetime,os,ssl,smtplib
-
 def GetLgHeNet(LstIP,browser,DctResult):
     for Ip in LstIP:
         StrResult  = 'None'
@@ -39,13 +38,8 @@ def GetLgHeNet(LstIP,browser,DctResult):
             message = '[Function : Main][Time collect: %s][Error : %s]'%(DateTimeCurrent,error)
             SendEmailText(receiver_email,message,subject)
             time.sleep(60)
-        
         if Ip in DctResult: DctResult[Ip]['LgHeNet'] = StrResult
         else: DctResult[Ip] = {'LgHeNet':StrResult}
-
-
-
-    
 def GetCenturyLink(LstIP,browser,DctResult):
     for Ip in LstIP:
         StrResult  = 'None'
@@ -69,10 +63,8 @@ def GetCenturyLink(LstIP,browser,DctResult):
             message = '[Function : Main][Time collect: %s][Error : %s]'%(DateTimeCurrent,error)
             SendEmailText(receiver_email,message,subject)
             time.sleep(60)
-
         if Ip in DctResult: DctResult[Ip]['CenturyLink'] = StrResult
         else: DctResult[Ip] = {'CenturyLink':StrResult}
-
 def GetPCCW(LstIP,browser,DctResult):
     for Ip in LstIP:
         StrResult  = 'None'
@@ -109,10 +101,8 @@ def GetPCCW(LstIP,browser,DctResult):
             message = '[Function : Main][Time collect: %s][Error : %s]'%(DateTimeCurrent,error)
             SendEmailText(receiver_email,message,subject)
             time.sleep(60)
-
         if Ip in DctResult: DctResult[Ip]['PCCW'] = StrResult
         else: DctResult[Ip] = {'PCCW':StrResult}
-
 def SendEmailAttachFile(receiver_email,subject,message,NameFileResult):
     dir_path = './/DataInfo'
     files = [NameFileResult]
@@ -124,13 +114,11 @@ def SendEmailAttachFile(receiver_email,subject,message,NameFileResult):
     msg['Subject'] = subject
     body = MIMEText(message, 'html', 'utf-8')  
     msg.attach(body)  # add message body (text or html)
-
     for f in files:  # add files to the message
         file_path = os.path.join(dir_path, f)
         attachment = MIMEApplication(open(file_path, "rb").read(), _subtype="txt")
         attachment.add_header('Content-Disposition','attachment', filename=f)
         msg.attach(attachment)
-
     # Create secure connection with server and send email
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
@@ -138,7 +126,6 @@ def SendEmailAttachFile(receiver_email,subject,message,NameFileResult):
         server.sendmail(
             sender_email, receiver_email, msg.as_string()
     )
-
 def SendEmailText (receiver_email,messages, subject):
     sender_email = "tool.acl.thinhlv@gmail.com"
     password = 'Myt00l@cl'
@@ -146,14 +133,11 @@ def SendEmailText (receiver_email,messages, subject):
     message["Subject"] = subject
     message["From"] = sender_email
     message["To"] = receiver_email
-
     # Turn these into plain/html MIMEText objects
     part1 = MIMEText(messages, "plain")
-
     # Add HTML/plain-text parts to MIMEMultipart message
     # The email client will try to render the last part first
     message.attach(part1)
-
     # Create secure connection with server and send email
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
@@ -161,9 +145,8 @@ def SendEmailText (receiver_email,messages, subject):
         server.sendmail(
             sender_email, receiver_email, message.as_string()
     )
-
 if __name__ == "__main__":
-  
+    '''
     while True:
         Stop = True
         StrTime = input('Nhập vào list phút, mỗi phút cách nhau dấu phẩy or dấu cách : ').strip()
@@ -173,13 +156,15 @@ if __name__ == "__main__":
             if Time.isdigit() == False: Stop = False
         if Stop : break
         print('\n')
-    LstTime = []
-    for Time in LstTmp: LstTime.append(int(Time))
+    '''
+    LstTime = [0,1,2,3,4,5,30,31,32,33,34,35]
+    #LstTime= []
+    #for Time in LstTmp: LstTime.append(int(Time))
     LstTimeCheck = []
     while True: 
         TimeCurrent = datetime.datetime.now()
         DateTimeCurrent = str(datetime.datetime.now().strftime('%d:%m:%Y %H:%M:%S'))
-        StrTimeCheck = '%s_%s_%s_%s'%(str(TimeCurrent.year),str(TimeCurrent.month),str(TimeCurrent.day),str(TimeCurrent.hour))
+        StrTimeCheck = '%s_%s_%s_%s_%s'%(str(TimeCurrent.year),str(TimeCurrent.month),str(TimeCurrent.day),str(TimeCurrent.hour),str(TimeCurrent.minute))
         if TimeCurrent.minute in LstTime and StrTimeCheck not in LstTimeCheck:
             try:
                 StrTimeTmp = str(datetime.datetime.now().strftime('%d_%m_%Y_%H_%M_%S'))
@@ -188,9 +173,7 @@ if __name__ == "__main__":
                 SheetName = Wb.sheetnames
                 Ws = Wb[SheetName[0]]
                 LstIP,threads,DctResult = [],[],{}
-
                 for IndexRow in range(2,Ws.max_row+1): LstIP.append(Ws.cell(row = IndexRow,column = 1).value)
-
                 browser1 = Browser('chrome')
                 browser2 = Browser('chrome')
                 browser3 = Browser('chrome')
@@ -208,7 +191,6 @@ if __name__ == "__main__":
                 browser1.quit()
                 browser2.quit()
                 browser3.quit()
-
                 for IndexRow in range(2,Ws.max_row+1): 
                     Ip = Ws.cell(row = IndexRow,column = 1).value
                     LgHeNet, CenturyLink, PCCWglobal = ' ', ' ', ' '
@@ -217,12 +199,10 @@ if __name__ == "__main__":
                         if 'LgHeNet' in DctTmp: LgHeNet = DctTmp['LgHeNet']
                         if 'CenturyLink' in DctTmp: CenturyLink = DctTmp['CenturyLink']
                         if 'PCCW' in DctTmp: PCCWglobal = DctTmp['PCCW']
-                    
                     Ws.cell(row = IndexRow,column = 2).value = LgHeNet
                     Ws.cell(row = IndexRow,column = 3).value = CenturyLink
                     Ws.cell(row = IndexRow,column = 4).value = PCCWglobal
                     Ws.cell(row = IndexRow,column = 5).value = ' '
-
                 Wb.save(NameFileResult)
                 LstTimeCheck.append(StrTimeCheck)
                 message = '<!DOCTYPE html><html><body><p>Time collect : %s<br><br>PING MONITOR TOOL</p></body></html>'%DateTimeCurrent
@@ -236,6 +216,7 @@ if __name__ == "__main__":
                 message = '[Function : Main][Time collect: %s][Error : %s]'%(DateTimeCurrent,error)
                 SendEmailText(receiver_email,message,subject)
         else:
-            print('List time collect mỗi ngày : %s'%(','.join(LstTmp)))
+            #print('List time collect mỗi ngày : %s'%(','.join(LstTmp)))
+            print('Time da chay: %s'%(' '.join(LstTimeCheck)))
             print('Time current : %s'%DateTimeCurrent)
             time.sleep(30)
