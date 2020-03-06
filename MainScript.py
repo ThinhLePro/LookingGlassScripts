@@ -107,7 +107,7 @@ def SendEmailAttachFile(receiver_email,subject,message,NameFileResult):
     dir_path = './/DataInfo'
     files = [NameFileResult]
     sender_email = 'tool.acl.thinhlv@gmail.com'
-    password = 'Myt00l@cl'
+    password = 'xxx'
     msg = MIMEMultipart()
     msg['To'] = receiver_email
     msg['From'] = sender_email
